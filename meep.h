@@ -1,19 +1,21 @@
 #include <iostream>
 #include <unordered_map>
 #include <vector>
-template<class key, class value>
+#include <functional>
+template<class key, class value, class cmp=std::greater<value>>
 class Meep
 {
 private:
     std::unordered_map<key, std::size_t> umap;
     std::vector<std::pair<key,value>> vec;
     std::size_t n=0;
+    cmp compare = cmp();
 public:
     Meep();
     Meep(std::size_t);
     
     std::size_t insert(key,value);
-    auto getMin();
+    auto pop();
     
     std::size_t size();
     int empty() { return n==0; }
@@ -32,14 +34,14 @@ public:
 };
 //template<class key, class value> Meep<key,value>::
 
-template<class key, class value> Meep<key,value>::Meep() : vec(64) {}
-template<class key, class value> Meep<key,value>::Meep(std::size_t i) : vec(i+1) {}
+template<class key, class value,class cmp> Meep<key,value,cmp>::Meep() : vec(64) {}
+template<class key, class value,class cmp> Meep<key,value,cmp>::Meep(std::size_t i) : vec(i+1) {}
 
-template<class key, class value>
-std::size_t Meep<key,value>::fixUp(key k)
+template<class key, class value,class cmp>
+std::size_t Meep<key,value,cmp>::fixUp(key k)
 {
     std::size_t i = umap[k];
-    while(i>1 && vec[i/2].second > vec[i].second)
+    while(i>1 && compare(vec[i/2].second,vec[i].second)) // compare_repair
     {
         std::swap(vec[i/2],vec[i]);
         std::swap(umap[vec[i/2].first],umap[vec[i].first]);
@@ -48,23 +50,23 @@ std::size_t Meep<key,value>::fixUp(key k)
     return i;
 }
 
-template<class key, class value>
-std::size_t Meep<key,value>::fixDown(key k,std::size_t N)
+template<class key, class value,class cmp>
+std::size_t Meep<key,value,cmp>::fixDown(key k,std::size_t N)
 {
     std::size_t i=umap[k];
     while(2*i <= N)
     {
         std::size_t j = 2*i;
-        if(j<N && vec[j].second > vec[j+1].second) j++;
-        if(!(vec[i].second > vec[j].second)) break;
+        if(j<N && compare(vec[j].second,vec[j+1].second)) j++; // compare_repair
+        if(!compare(vec[i].second,vec[j].second)) break; // compare_repair
         std::swap(vec[i],vec[j]);
         std::swap(umap[vec[i].first],umap[vec[j].second]);
         i=j;
     }
     return i;
 }
-template<class key, class value> 
-std::size_t Meep<key,value>::insert(key k, value v)
+template<class key, class value, class cmp> 
+std::size_t Meep<key,value,cmp>::insert(key k, value v)
 {
     if(!full())
     {
@@ -76,8 +78,8 @@ std::size_t Meep<key,value>::insert(key k, value v)
     return 0;
 }
 
-template<class key, class value> 
-void Meep<key,value>::display()
+template<class key, class value, class cmp> 
+void Meep<key,value,cmp>::display()
 {
     for(std::size_t i=1;i<=n;i++)
     {
@@ -85,8 +87,8 @@ void Meep<key,value>::display()
     }
 }
 
-template<class key, class value>
-auto Meep<key,value>::getMin()
+template<class key, class value, class cmp>
+auto Meep<key,value,cmp>::pop()
 {
     std::swap(umap[vec[1].first],umap[vec[n].first]);
     std::swap(vec[1],vec[n]);
@@ -94,21 +96,26 @@ auto Meep<key,value>::getMin()
     fixDown(umap[vec[1].first],n-1);
     return vec[n--];
 }
-template<class key, class value>
-std::size_t Meep<key,value>::change(key k, value v)
+template<class key, class value, class cmp>
+std::size_t Meep<key,value,cmp>::change(key k, value v)
 {
     std::size_t i=umap[k];
+    bool compare_result = compare(vec[i].second,v);
     vec[i].second=v;
-    return fixUp(k);
+    if(compare_result==true) // which means the current value is larger than v
+        return fixUp(k); // then we need to get the key k with the new value v up the heap
+    else
+        return fixDown(k); // if it's the other way around ( less than or equal to )
+        // we can eliminate the equal to, because fixDown in this case will make the heap untouched
 }
-template<class key, class value>
-std::size_t Meep<key,value>::searchIndex(key k)
+template<class key, class value,class cmp>
+std::size_t Meep<key,value,cmp>::searchIndex(key k)
 {
     return umap[k];
 }
 
-template<class key, class value>
-value Meep<key,value>::searchValue(key k)
+template<class key, class value, class cmp>
+value Meep<key,value,cmp>::searchValue(key k)
 {
     return vec[umap[k]].second;
 }
