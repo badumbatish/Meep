@@ -82,4 +82,5 @@ The name Meep comes from a game character in Dota and Dota 2 named Meepo. Since 
 
 ## Resources
 Algorithms in C++ by Robert Sedgewick
+
 Prim's minimal spanning tree by Tushar Roy
