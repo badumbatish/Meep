@@ -5,8 +5,8 @@ Meep is a combined data structure (Binary Heap + Hash map) made to replace C++'s
 
 I implemented the data structure because 
 
-- Having a library devoted to graph algorithms is very good. 
-- C++'s priority queue doesn't have decrease operation.
+- Having a library devoted to graph algorithms is convenient. 
+- C++'s priority queue doesn't have decrease operation, which sucks.
 - I hate having naked separate data structures and then call it a combined one. I prefer having it inside the implementation files so the users doesn't know what's behind the scene.
 ## Usage 
 Right now,  Meep supports
