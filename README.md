@@ -2,6 +2,11 @@
 
 ## Introduction
 Meep is a combined data structure (Binary Heap + Hash map) made to replace C++'s ordinary priority queue. I first heard of this data structure from [Tushar Roy](https://www.linkedin.com/in/tushar-roy-4351091a/) in his [tutorial](https://www.youtube.com/watch?v=oP2-8ysT3QQ&list=PLrmLmBdmIlpu2f2g8ltqaaCZiq6GJvl1j&index=4) about Prim's minimal spanning tree.
+Meep allows you to
+
+- Use it as a priority queue
+- Access element in priority queue in O(1) time regardless of whether the element is the top prioritized element in the heap or not.
+- Know if an element is present in the heap or not.
 
 I implemented the data structure because 
 
